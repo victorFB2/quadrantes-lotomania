@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e36b17">
+<title>Quadrantes com espelho • Lotomania</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e36b17'/%3E%3Ctext x='50' y='64' font-size='44' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3ELM%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --laranja: #e36b17; --laranja-2: #f49b46; --laranja-suave: #fff0e5;
+    --papel: #fbf3d5; --papel-borda: #ecc98a; --caneta: #1f3a93;
+    --fundo: #faf7f2; --cartao: #ffffff; --texto: #2b2622; --apagado: #756b62;
+    --linha: #ece3d8; --verde: #13844b; --vermelho: #b42318;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--fundo); color: var(--texto);
+    font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding-bottom: 150px; }
+  .caixa { width: 100%; max-width: 760px; margin: 0 auto; padding: 0 16px; }
+  button { font: inherit; color: inherit; }
+
+  .topo { background: var(--laranja); color: #fff; padding: 12px 0; }
+  .topo .caixa { display: flex; align-items: center; gap: 12px; }
+  .marca { width: 40px; height: 40px; border-radius: 10px; background: #fff; color: var(--laranja);
+    display: grid; place-items: center; font-weight: 800; }
+  .topo b { display: block; font-size: 1.05rem; letter-spacing: .02em; }
+  .topo small { opacity: .9; }
+
+  .intro h1 { font-size: 1.6rem; line-height: 1.2; margin: 22px 0 8px; }
+  .intro h1 span { color: var(--laranja); }
+  .intro p { margin: 0 0 8px; color: var(--apagado); }
+
+  .bloco { background: var(--cartao); border: 1px solid var(--linha); border-radius: 16px; padding: 16px; margin: 16px 0; }
+  .passo { font-size: 1.05rem; margin: 0 0 12px; display: flex; gap: 10px; align-items: center; }
+  .passo i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--laranja);
+    color: #fff; display: grid; place-items: center; font-size: .85rem; flex: none; }
+  .nota { color: var(--apagado); font-size: .85rem; margin: 10px 0 0; }
+
+  .atalhos { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px; }
+  .atalhos button { border: 1px solid var(--linha); background: #fff; border-radius: 12px; padding: 10px 2px;
+    display: grid; gap: 2px; cursor: pointer; }
+  .atalhos button b { font-size: 1.3rem; }
+  .atalhos button small { font-size: .7rem; color: var(--apagado); }
+  .atalhos button.ativo { border-color: var(--laranja); background: var(--laranja-suave);
+    box-shadow: inset 0 0 0 2px var(--laranja); }
+
+  /* O volante, igual ao papel: 10 linhas de 10, com as linhas azuis de caneta
+     separando os quadrantes (2 linhas por 5 colunas). As linhas sao faixas
+     da propria grade, para ficarem continuas como no papel. */
+  .volante { display: grid; background: var(--papel); border: 1px solid var(--papel-borda); border-radius: 12px;
+    padding: 10px; gap: 5px;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) 3px repeat(5, minmax(0, 1fr)); }
+  .volante .linha-v { grid-column: 6; grid-row: 1 / -1; background: var(--caneta); border-radius: 2px; }
+  .volante .linha-h { grid-column: 1 / -1; height: 3px; background: var(--caneta); border-radius: 2px; }
+  .num { border: 1.5px solid var(--papel-borda); background: #fff9e8; color: #c45a12; border-radius: 7px;
+    font-weight: 700; font-size: .95rem; height: 38px; padding: 0; cursor: pointer; font-variant-numeric: tabular-nums; }
+  .num.riscado { background: var(--caneta); border-color: var(--caneta); color: #fff; }
+  .num.espelho { background: transparent; border: 2px dashed var(--laranja); color: var(--laranja); }
+  .num:disabled { cursor: default; }
+  .legenda { display: flex; gap: 16px; flex-wrap: wrap; margin: 10px 0 0; font-size: .85rem; color: var(--apagado); }
+  .legenda span { display: inline-flex; align-items: center; gap: 6px; }
+  .legenda .num { width: 34px; height: 26px; font-size: .75rem; display: inline-grid; place-items: center; }
+
+  .quads { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 14px; }
+  .quad { border: 1px solid var(--linha); border-radius: 12px; padding: 8px 10px; display: grid; gap: 2px; background: #fff; }
+  .quad.pronto { border-color: var(--caneta); }
+  .quad-topo { display: flex; justify-content: space-between; gap: 6px; }
+  .quad-topo b { font-size: .88rem; }
+  .quad-conta { font-weight: 700; font-size: .85rem; color: var(--apagado); }
+  .quad.pronto .quad-conta { color: var(--caneta); }
+  .quad small { color: var(--apagado); font-size: .76rem; }
+  .quad label { display: flex; gap: 6px; align-items: center; font-size: .82rem; cursor: pointer; }
+  .quad input { width: 18px; height: 18px; accent-color: var(--laranja); }
+
+  .barra { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--linha);
+    box-shadow: 0 -6px 18px rgba(0,0,0,.06); padding: 10px 0 calc(10px + env(safe-area-inset-bottom)); z-index: 10; }
+  #resumo { font-weight: 600; font-size: .9rem; margin-bottom: 8px; }
+  #resumo.aviso { color: var(--vermelho); }
+  .botoes { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { border-radius: 12px; padding: 11px 14px; border: 1px solid var(--linha); background: #fff; cursor: pointer; font-weight: 600; }
+  .btn.pri { background: var(--laranja); border-color: var(--laranja); color: #fff; flex: 1 1 180px; }
+  .btn.pri:disabled { background: #e8d6c8; border-color: #e8d6c8; cursor: not-allowed; }
+  .btn.sec { flex: 0 1 auto; }
+
+  .resultado h2 { font-size: 1.3rem; margin: 26px 0 4px; }
+  .resultado h3 { font-size: 1.02rem; margin: 22px 0 8px; }
+  .sub { color: var(--apagado); margin: 0 0 12px; }
+  .placar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .placar div { background: #fff; border: 1px solid var(--linha); border-radius: 14px; padding: 12px; }
+  .placar small { display: block; color: var(--apagado); font-size: .76rem; text-transform: uppercase; letter-spacing: .04em; }
+  .placar strong { display: block; font-size: 1.15rem; margin: 2px 0; }
+  .placar span { font-size: .78rem; color: var(--apagado); }
+  .placar .ganho strong { color: var(--verde); }
+  .placar .negativo strong { color: var(--vermelho); }
+  .placar .positivo strong { color: var(--verde); }
+  .periodo { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 12px 0 0; font-size: .9rem; }
+  .periodo select { font: inherit; padding: 8px; border-radius: 10px; border: 1px solid var(--linha); background: #fff; }
+  .caixa-info { border-radius: 14px; padding: 14px; margin: 14px 0; }
+  .caixa-info p { margin: 6px 0; }
+  .acaso { background: var(--laranja-suave); }
+  .garantia { background: #fff4e5; border: 1px solid #f5c26b; }
+  .bolas { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+  .bolas i { font-style: normal; font-weight: 700; font-size: .78rem; min-width: 30px; text-align: center;
+    padding: 4px 0; border-radius: 999px; background: #fff; border: 1px solid var(--papel-borda); color: #c45a12;
+    font-variant-numeric: tabular-nums; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chips span { border: 1px solid var(--linha); background: #fff; border-radius: 999px; padding: 6px 12px; font-size: .85rem; }
+  .volantes-topo { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .volantes-topo .btn { flex: 0 1 auto; }
+  .lista { display: grid; gap: 8px; margin-top: 10px; }
+  .lista div { background: #fff; border: 1px solid var(--linha); border-radius: 12px; padding: 8px 10px; }
+  .lista b { font-size: .8rem; color: var(--apagado); }
+  .tabela { width: 100%; border-collapse: collapse; font-size: .88rem; background: #fff; border-radius: 12px; overflow: hidden; }
+  .tabela th, .tabela td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--linha); }
+  .tabela th { font-size: .75rem; color: var(--apagado); text-transform: uppercase; letter-spacing: .04em; }
+  .tabela tr.pagou td { background: #eef9f2; }
+  .rolar { overflow-x: auto; border: 1px solid var(--linha); border-radius: 12px; }
+  .honesto { color: var(--apagado); font-size: .88rem; }
+  .honesto li { margin: 4px 0; }
+  .alerta { color: var(--vermelho); font-weight: 600; }
+  .rodape { color: var(--apagado); font-size: .8rem; margin: 26px 0 10px; }
+  .aviso-erro { background: #fdecea; color: var(--vermelho); border-radius: 12px; padding: 10px 12px; margin: 12px 0; font-weight: 600; }
+  .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: 150px; background: #2b2622; color: #fff;
+    padding: 8px 14px; border-radius: 999px; font-size: .9rem; z-index: 20; }
+
+  @media (max-width: 520px) {
+    /* A barra de botoes do celular tem cerca de 130px. O espaco reservado no
+       fim da pagina precisa ser maior que ela, senao o fim do resultado fica
+       escondido atras dos botoes (medido: barra de 169px e so 150px de
+       espaco, antes deste ajuste). */
+    body { padding-bottom: 190px; }
+    .intro h1 { font-size: 1.35rem; }
+    .atalhos { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .volante { padding: 6px; gap: 3px; }
+    .num { height: 32px; font-size: .78rem; border-radius: 5px; }
+    .placar { grid-template-columns: 1fr; }
+    #resumo { font-size: .82rem; margin-bottom: 6px; }
+    .botoes { gap: 6px; }
+    .btn { padding: 9px 10px; font-size: .88rem; }
+    .btn.sec { flex: 1 1 0; }
+    .btn.pri { flex: 1 1 100%; }
+    .toast { bottom: 200px; }
+  }
+</style>
+</head>
+<body>
+<header class="topo">
+  <div class="caixa">
+    <span class="marca">LM</span>
+    <div><b>LOTOMANIA</b><small>Sistema dos quadrantes com espelho</small></div>
+  </div>
+</header>
+
+<main class="caixa">
+  <section class="intro">
+    <h1>10 quadrantes, 5 riscados<br><span>e o resto é espelho.</span></h1>
+    <p>O volante é o mesmo do papel, com os quadrantes separados pelas linhas azuis. Em cada quadrante
+       você risca <b>5</b>; os outros 5 são o <b>espelho</b>. Nos quadrantes que <b>alternam</b>, cada volante
+       leva ou os riscados ou o espelho. Com os 10 alternando: 2×2×2×2×2×2×2×2×2×2 = <b>1.024 volantes</b>.</p>
+  </section>
+
+  <section class="bloco">
+    <h2 class="passo"><i>1</i> Quantos quadrantes alternam com o espelho?</h2>
+    <div class="atalhos" id="atalhos"></div>
+    <p class="nota">O botão escolhe os primeiros quadrantes (do 1 em diante). Para escolher quais, use a
+      caixinha de cada quadrante, embaixo do volante. Os que não alternam ficam fixos, sempre com os 5 riscados.</p>
+  </section>
+
+  <section class="bloco">
+    <h2 class="passo"><i>2</i> Risque 5 números em cada quadrante</h2>
+    <div class="volante" id="volante" role="group" aria-label="Volante da Lotomania"></div>
+    <div class="legenda" aria-hidden="true">
+      <span><i class="num riscado">05</i> riscado</span>
+      <span><i class="num espelho">06</i> espelho</span>
+    </div>
+    <div class="quads" id="quads"></div>
+  </section>
+
+  <div id="erro" class="aviso-erro" hidden></div>
+  <section class="resultado" id="resultado" hidden></section>
+
+  <footer class="rodape" id="rodape"></footer>
+</main>
+
+<div class="barra">
+  <div class="caixa">
+    <div id="resumo" aria-live="polite"></div>
+    <div class="botoes">
+      <button type="button" class="btn sec" id="acaso">Completar ao acaso</button>
+      <button type="button" class="btn sec" id="limpar">Limpar</button>
+      <button type="button" class="btn pri" id="montar" disabled>Montar os volantes →</button>
+    </div>
+  </div>
+</div>
+
+<script src="dados.js"></script>
+<script src="sistema.js"></script>
+<script>
+(() => {
+  const Q = window.Quadrantes;
+  const D = window.DADOS_LOTOMANIA;
+  const $ = (id) => document.getElementById(id);
+  const { dois, reais, milhar } = Q;
+  const CHAVE = 'quadrantes-lotomania-v1';
+
+  // As marcacoes ficam guardadas no aparelho: o pai fecha e, quando volta,
+  // encontra o sistema dele como deixou.
+  let salvo = {};
+  try { salvo = JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { salvo = {}; }
+  const valido = (n, max) => Number.isInteger(n) && n >= 0 && n <= max;
+  const marcados = new Set((salvo.marcados || []).filter((n) => valido(n, 99)));
+  const alternam = new Set(Array.isArray(salvo.alternam) ? salvo.alternam.filter((q) => valido(q, 9)) : [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  let periodo = String(salvo.periodo || Q.PERIODO_PADRAO);
+  const guardar = () => {
+    try { localStorage.setItem(CHAVE, JSON.stringify({ marcados: [...marcados], alternam: [...alternam], periodo })); } catch (e) { /* sem espaco: segue sem guardar */ }
+  };
+  const noQuadrante = (q) => [...marcados].filter((n) => Q.QUADRANTE_DE[n] === q);
+
+  // ---- montar a tela ------------------------------------------------------
+  const atalhos = $('atalhos');
+  for (let k = Q.MIN_ALTERNAM; k <= Q.MAX_ALTERNAM; k += 1) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.dataset.k = k;
+    b.innerHTML = `<b>${k}</b><small>${milhar(2 ** k)} volantes</small>`;
+    b.addEventListener('click', () => { alternam.clear(); for (let q = 0; q < k; q += 1) alternam.add(q); mudou(); });
+    atalhos.appendChild(b);
+  }
+
+  // O volante: linha r e coluna c do papel. A 1a coluna de numeros fica nas
+  // colunas 1-5 da grade, a linha azul na 6, a 2a metade nas 7-11. Nas linhas,
+  // cada par de linhas de numeros e seguido de uma linha azul.
+  const vol = $('volante');
+  const linhaDaGrade = (r) => Math.floor(r / 2) * 3 + (r % 2) + 1;
+  for (let r = 0; r < 10; r += 1) {
+    for (let c = 0; c < 10; c += 1) {
+      const n = (r * 10 + c + 1) % 100;
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'num';
+      b.dataset.n = n;
+      b.textContent = dois(n);
+      b.style.gridRow = linhaDaGrade(r);
+      b.style.gridColumn = c < 5 ? c + 1 : c + 2;
+      b.addEventListener('click', () => {
+        if (marcados.has(n)) marcados.delete(n);
+        else if (noQuadrante(Q.QUADRANTE_DE[n]).length < 5) marcados.add(n);
+        mudou();
+      });
+      vol.appendChild(b);
+    }
+  }
+  const lv = document.createElement('div'); lv.className = 'linha-v'; vol.appendChild(lv);
+  for (let i = 1; i <= 4; i += 1) {
+    const lh = document.createElement('div'); lh.className = 'linha-h'; lh.style.gridRow = i * 3; vol.appendChild(lh);
+  }
+
+  const quads = $('quads');
+  for (let q = 0; q < 10; q += 1) {
+    const d = document.createElement('div');
+    d.className = 'quad';
+    d.dataset.q = q;
+    d.innerHTML = `<div class="quad-topo"><b>Quadrante ${q + 1}</b><span class="quad-conta">0/5</span></div>
+      <small>${Q.faixaTexto(q)}</small>
+      <label><input type="checkbox"> alterna com o espelho</label>`;
+    d.querySelector('input').addEventListener('change', (e) => {
+      if (e.target.checked) alternam.add(q); else alternam.delete(q);
+      mudou();
+    });
+    quads.appendChild(d);
+  }
+
+  // ---- desenhar o estado -------------------------------------------------
+  function desenhar() {
+    let prontos = 0;
+    const cheio = [];
+    for (let q = 0; q < 10; q += 1) {
+      const c = noQuadrante(q).length;
+      cheio[q] = c === 5;
+      if (cheio[q]) prontos += 1;
+      const d = quads.children[q];
+      d.classList.toggle('pronto', cheio[q]);
+      d.querySelector('.quad-conta').textContent = `${c}/5`;
+      d.querySelector('input').checked = alternam.has(q);
+    }
+    vol.querySelectorAll('.num').forEach((b) => {
+      const n = Number(b.dataset.n);
+      const on = marcados.has(n);
+      const q = Q.QUADRANTE_DE[n];
+      b.classList.toggle('riscado', on);
+      b.classList.toggle('espelho', !on && cheio[q]);
+      b.disabled = !on && cheio[q];
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+    const k = alternam.size;
+    atalhos.querySelectorAll('button').forEach((b) => b.classList.toggle('ativo', Number(b.dataset.k) === k));
+    const faixaOk = k >= Q.MIN_ALTERNAM && k <= Q.MAX_ALTERNAM;
+    let texto = `${prontos} de 10 quadrantes prontos • ${k} alternando`;
+    if (faixaOk) texto += ` = ${milhar(2 ** k)} volantes • ${reais(2 ** k * Q.PRECO_APOSTA)} por concurso`;
+    else texto += ` — escolha de ${Q.MIN_ALTERNAM} a ${Q.MAX_ALTERNAM} para alternar`;
+    $('resumo').textContent = texto;
+    $('resumo').classList.toggle('aviso', !faixaOk);
+    $('montar').disabled = !(prontos === 10 && faixaOk);
+  }
+
+  function mudou() {
+    guardar();
+    $('resultado').hidden = true;
+    $('erro').hidden = true;
+    desenhar();
+  }
+
+  // ---- o resultado -------------------------------------------------------
+  const bolas = (ns) => `<div class="bolas">${ns.map((n) => `<i>${dois(n)}</i>`).join('')}</div>`;
+  const lista = (qs) => qs.map((q) => q + 1).join(', ').replace(/, (\d+)$/, ' e $1');
+  let ultimoTexto = '';
+  let ultimoNome = '';
+
+  function mostrar(rolar) {
+    const m = [...marcados].sort((a, b) => a - b);
+    const a = [...alternam].sort((x, y) => x - y);
+    const erro = Q.validar(m, a);
+    if (erro) { $('erro').textContent = erro; $('erro').hidden = false; return; }
+    const r = Q.testar(D, m, a, periodo);
+    if (r.erro) { $('erro').textContent = r.erro; $('erro').hidden = false; return; }
+    const volantes = Q.gerarVolantes(m, a);
+    const exemplo = Q.sorteioSemPremio(m, a);
+    ultimoTexto = Q.textoVolantes(m, a);
+    ultimoNome = `lotomania-quadrantes-${volantes.length}volantes.txt`;
+    const fixos = 10 - a.length;
+    const opcoes = Q.PERIODOS.map((p) => `<option value="${p}" ${!r.baseInteira && r.periodo === p ? 'selected' : ''}>últimos ${milhar(p)}</option>`).join('')
+      + `<option value="todos" ${r.baseInteira ? 'selected' : ''}>toda a história</option>`;
+
+    $('resultado').innerHTML = `
+      <h2>${milhar(r.volantes)} volantes • ${reais(r.custoConcurso)} por concurso</h2>
+      <p class="sub">${a.length} quadrantes alternando (quadrante${a.length > 1 ? 's' : ''} ${lista(a)})${fixos ? ` e ${fixos} fixo${fixos > 1 ? 's' : ''}` : ''}.</p>
+
+      <h3>Se tivesse jogado esse sistema no passado</h3>
+      <div class="placar">
+        <div><small>Teria gastado</small><strong>${reais(r.gasto)}</strong><span>${milhar(r.periodo)} concursos × ${milhar(r.volantes)} volantes</span></div>
+        <div class="ganho"><small>Teria recebido</small><strong>${reais(r.ganho)}</strong><span>prêmio em ${milhar(r.premiados)} de ${milhar(r.periodo)} concursos</span></div>
+        <div class="${r.saldo >= 0 ? 'positivo' : 'negativo'}"><small>Saldo</small><strong>${r.saldo < 0 ? '−' : ''}${reais(Math.abs(r.saldo))}</strong><span>de cada R$ 100, voltaram R$ ${r.retorno.toFixed(0)}</span></div>
+      </div>
+      <div class="periodo"><label for="per">Testar em</label><select id="per">${opcoes}</select>
+        <span class="sub" style="margin:0">do concurso ${r.primeiro} (${r.dataPrimeira}) ao ${r.ultimo} (${r.dataUltima})</span></div>
+
+      <div class="caixa-info acaso">
+        <b>E sem sistema nenhum?</b>
+        <p>Com o mesmo gasto — ${milhar(r.volantes)} apostas de 50 números por concurso, marcadas ao acaso — o esperado
+           nesse mesmo período seria receber <b>${reais(r.esperadoAcaso)}</b>: de cada R$ 100, voltariam R$ ${r.retornoAcaso.toFixed(0)}.
+           Com o seu sistema voltaram <b>R$ ${r.retorno.toFixed(0)}</b>.</p>
+      </div>
+
+      <div class="caixa-info garantia">
+        <b>Este sistema não garante prêmio.</b>
+        <p>Se saírem estes 20 números, <b>todos os ${milhar(r.volantes)} volantes fazem exatamente 10 acertos</b> — e 10 acertos não paga nada:</p>
+        ${bolas(exemplo)}
+        <p>No período testado, em <b>${milhar(r.semNada)} dos ${milhar(r.periodo)} concursos</b> nenhum volante recebeu nada.</p>
+      </div>
+
+      ${r.faixas.length ? `<h3>Volantes premiados, por faixa</h3>
+      <div class="chips">${r.faixas.map(([h, q]) => `<span><b>${h} acertos:</b> ${milhar(q)} volante${q > 1 ? 's' : ''}</span>`).join('')}</div>` : ''}
+
+      <h3>Quanto o melhor volante fez, em cada concurso</h3>
+      <div class="chips">${r.melhor.map(([h, q]) => `<span><b>${h} acertos</b> em ${milhar(q)} concurso${q > 1 ? 's' : ''}</span>`).join('')}</div>
+      ${r.maior ? `<p class="sub" style="margin-top:10px">Maior prêmio num único concurso: <b>${reais(r.maior.premio)}</b>, no ${r.maior.concurso} (${r.maior.data}), quando o melhor volante fez ${r.maior.acertos}.</p>` : ''}
+
+      <h3>Seus ${milhar(volantes.length)} volantes, para levar à lotérica</h3>
+      <div class="volantes-topo">
+        <button type="button" class="btn pri" id="baixar">Baixar os ${milhar(volantes.length)} volantes</button>
+        <button type="button" class="btn sec" id="copiar">Copiar</button>
+        <button type="button" class="btn sec" id="enviar" hidden>Enviar (WhatsApp…)</button>
+      </div>
+      <p class="sub" style="margin-top:8px">${volantes.length > 32 ? 'Aqui aparecem os 32 primeiros. O arquivo leva todos.' : 'Todos aparecem abaixo.'}</p>
+      <div class="lista">${volantes.slice(0, 32).map((v, i) => `<div><b>Volante ${i + 1}</b>${bolas(v)}</div>`).join('')}</div>
+
+      <h3>Confira você mesmo: os últimos ${r.linhas.length} concursos</h3>
+      <div class="rolar"><table class="tabela">
+        <thead><tr><th>Concurso</th><th>Melhor volante</th><th>Volantes premiados</th><th>Prêmio</th></tr></thead>
+        <tbody>${r.linhas.map((l) => `<tr class="${l.premio > 0 ? 'pagou' : ''}"><td><b>${l.concurso}</b><br><small>${l.data}</small></td>
+          <td>${l.acertos} acertos</td><td>${l.volantesPremiados ? milhar(l.volantesPremiados) : '—'}</td>
+          <td>${l.semDado ? 'sem dado' : l.premio > 0 ? reais(l.premio) : '—'}</td></tr>`).join('')}</tbody>
+      </table></div>
+
+      <h3>Como esta conta é feita</h3>
+      <ul class="honesto">
+        <li><b>Os prêmios são os reais:</b> cada volante premiado recebeu o valor que a Caixa pagou naquela faixa, naquele concurso.</li>
+        <li><b>A conta é exata:</b> não é sorteio nem estimativa. Para cada concurso, conta-se quantos dos seus volantes fizeram cada número de acertos.</li>
+        <li><b>O gasto usa o preço de hoje</b> (${reais(r.preco)} por volante) do começo ao fim do período.</li>
+        ${r.semValor ? `<li><b>${milhar(r.semValor)} volante${r.semValor > 1 ? 's' : ''}</b> teria${r.semValor > 1 ? 'm' : ''} acertado uma faixa que ninguém ganhou naquele concurso. A Caixa não informa quanto seria pago, então não foi somado.</li>` : ''}
+        ${r.semDado ? `<li><b>${r.semDado} concurso${r.semDado > 1 ? 's' : ''}</b> sem os prêmios salvos: entrou no gasto, não no ganho.</li>` : ''}
+      </ul>
+      <p class="alerta">Isto não é previsão. Cada sorteio é independente, e nenhum jeito de montar volantes muda o quanto se espera
+        ganhar por real apostado — o sistema só muda como os prêmios se juntam: às vezes vários volantes pagam juntos, às vezes nenhum paga.</p>`;
+
+    $('resultado').hidden = false;
+    $('per').addEventListener('change', (e) => { periodo = e.target.value; guardar(); mostrar(false); });
+    $('baixar').addEventListener('click', baixar);
+    $('copiar').addEventListener('click', copiar);
+    const arquivo = new File([ultimoTexto], ultimoNome, { type: 'text/plain' });
+    if (navigator.canShare && navigator.canShare({ files: [arquivo] })) {
+      $('enviar').hidden = false;
+      $('enviar').addEventListener('click', () => navigator.share({ files: [arquivo], title: 'Volantes da Lotomania' }).catch(() => {}));
+    }
+    if (rolar) $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function aviso(texto) {
+    const t = document.createElement('div');
+    t.className = 'toast'; t.textContent = texto;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2200);
+  }
+  function baixar() {
+    const url = URL.createObjectURL(new Blob([ultimoTexto], { type: 'text/plain;charset=utf-8' }));
+    const a = document.createElement('a');
+    a.href = url; a.download = ultimoNome;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  }
+  function copiar() {
+    navigator.clipboard.writeText(ultimoTexto).then(() => aviso('Volantes copiados'), () => aviso('Não consegui copiar. Use "Baixar".'));
+  }
+
+  // ---- botoes da barra ---------------------------------------------------
+  $('acaso').addEventListener('click', () => {
+    Q.QUADRANTES.forEach((numeros, q) => {
+      const livres = numeros.filter((n) => !marcados.has(n));
+      while (noQuadrante(q).length < 5) marcados.add(livres.splice(Math.floor(Math.random() * livres.length), 1)[0]);
+    });
+    mudou();
+  });
+  $('limpar').addEventListener('click', () => {
+    if (marcados.size && !confirm('Apagar todos os números riscados?')) return;
+    marcados.clear();
+    mudou();
+  });
+  $('montar').addEventListener('click', () => mostrar(true));
+
+  const ult = D.concursos[D.concursos.length - 1];
+  $('rodape').innerHTML = `Histórico da Lotomania até o concurso <b>${ult[0]}</b> (${ult[1]}), com os prêmios pagos pela Caixa.
+    Preço da aposta: ${reais(Q.PRECO_APOSTA)}. Esta página não guarda nada fora do seu aparelho.`;
+
+  desenhar();
+  // Se o sistema guardado ja esta completo, mostra o resultado direto.
+  if (!$('montar').disabled) mostrar(false);
+})();
+</script>
+</body>
+</html>
