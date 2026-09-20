@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#e36b17">
+<title>Tabela pura de quadrantes • Lotomania</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23e36b17'/%3E%3Ctext x='50' y='64' font-size='44' text-anchor='middle' fill='white' font-family='Arial' font-weight='700'%3E20%3C/text%3E%3C/svg%3E">
+<style>
+  :root { --laranja: #e36b17; --laranja-suave: #fff0e5; --papel: #fbf3d5; --papel-borda: #ecc98a; --caneta: #1f3a93;
+    --fundo: #faf7f2; --texto: #2b2622; --apagado: #756b62; --linha: #ece3d8; --verde: #13844b; --vermelho: #b42318; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--fundo); color: var(--texto); font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; padding-bottom: 40px; }
+  .caixa { width: 100%; max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+  button { font: inherit; color: inherit; }
+  .topo { background: var(--laranja); color: #fff; padding: 12px 0; }
+  .topo .caixa { display: flex; align-items: center; gap: 12px; }
+  .marca { width: 40px; height: 40px; border-radius: 10px; background: #fff; color: var(--laranja); display: grid; place-items: center; font-weight: 800; }
+  .topo b { display: block; font-size: 1.05rem; } .topo small { opacity: .9; }
+  h1 { font-size: 1.5rem; line-height: 1.2; margin: 20px 0 6px; } h1 span { color: var(--laranja); }
+  h2 { font-size: 1.15rem; margin: 26px 0 8px; border-top: 3px solid var(--laranja); padding-top: 12px; }
+  h3 { font-size: 1rem; margin: 18px 0 6px; }
+  p { margin: 6px 0; } .sub { color: var(--apagado); font-size: .92rem; }
+  a { color: var(--caneta); font-weight: 600; }
+  .bloco { background: #fff; border: 1px solid var(--linha); border-radius: 16px; padding: 14px 16px; margin: 14px 0; }
+  .passo { font-size: 1.05rem; margin: 0 0 10px; display: flex; gap: 10px; align-items: center; }
+  .passo i { font-style: normal; width: 26px; height: 26px; border-radius: 50%; background: var(--laranja); color: #fff; display: grid; place-items: center; font-size: .85rem; flex: none; }
+  table { border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; margin: 10px 0; font-size: .92rem; width: 100%; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--linha); vertical-align: top; }
+  th { font-size: .75rem; text-transform: uppercase; color: var(--apagado); letter-spacing: .04em; }
+  td b { font-size: 1.05rem; }
+  .rolar { overflow-x: auto; }
+  .quads { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; background: var(--papel); border: 1px solid var(--papel-borda); border-radius: 12px; padding: 10px; position: relative; }
+  .quads::before { content: ''; position: absolute; top: 8px; bottom: 8px; left: 50%; width: 3px; background: var(--caneta); border-radius: 2px; }
+  .quad { display: flex; align-items: center; gap: 8px; border: 1.5px solid var(--papel-borda); background: #fff9e8; border-radius: 10px; padding: 6px 8px; cursor: pointer; text-align: left; min-height: 44px; }
+  .quad b { width: 26px; height: 26px; border-radius: 50%; background: #fff; border: 1.5px solid var(--papel-borda); display: grid; place-items: center; font-size: .8rem; color: #c45a12; flex: none; }
+  .quad span { font-weight: 700; color: #c45a12; font-variant-numeric: tabular-nums; font-size: .84rem; }
+  .quad.on { background: var(--caneta); border-color: var(--caneta); }
+  .quad.on b { background: #fff; color: var(--caneta); border-color: #fff; }
+  .quad.on span { color: #fff; }
+  .quad:disabled { opacity: .45; cursor: not-allowed; }
+  .conta { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .conta b { font-size: 1.05rem; } .conta b.ok { color: var(--verde); }
+  .btn { border-radius: 12px; padding: 10px 14px; border: 1px solid var(--linha); background: #fff; cursor: pointer; font-weight: 600; }
+  .btn.pri { background: var(--laranja); border-color: var(--laranja); color: #fff; }
+  .niveis { display: grid; gap: 10px; }
+  details { background: #fff; border: 1px solid var(--linha); border-radius: 12px; }
+  summary { cursor: pointer; padding: 12px 14px; list-style: none; display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: .95rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: '▸'; color: var(--laranja); font-size: 1.1rem; line-height: 1; }
+  details[open] summary::before { content: '▾'; }
+  summary b { font-size: 1.05rem; } summary span { color: var(--apagado); font-size: .86rem; }
+  .jogos { border-top: 1px solid var(--linha); padding: 8px 14px 12px; max-height: 420px; overflow: auto; }
+  .jogo { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--linha); font-variant-numeric: tabular-nums; flex-wrap: wrap; }
+  .jogo small { color: var(--apagado); min-width: 64px; }
+  .jogo .q { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .jogo .q i { font-style: normal; font-weight: 700; min-width: 28px; text-align: center; padding: 2px 0; border-radius: 6px; background: var(--caneta); color: #fff; font-size: .82rem; }
+  .jogo .fora { color: var(--vermelho); font-size: .86rem; }
+  .jogo .fora i { font-style: normal; font-weight: 700; min-width: 28px; display: inline-block; text-align: center; padding: 2px 0; border-radius: 6px; border: 1.5px dashed var(--vermelho); font-size: .82rem; }
+  .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .honesto { background: #fff4e5; border: 1px solid #f5c26b; border-radius: 12px; padding: 10px 12px; margin-top: 18px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2b2622; color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 600; z-index: 20; }
+  @media print { .topo, .acoes { display: none; } .jogos { max-height: none; } body { background: #fff; } }
+</style>
+</head>
+<body>
+<header class="topo"><div class="caixa"><div class="marca">20</div><div><b>LOTOMANIA</b><small>Tabela pura de quadrantes</small></div></div></header>
+<main class="caixa">
+  <h1>Fechamento só de quadrantes: <span>jogar 10, 12, 13 ou 14 em 20</span></h1>
+  <p class="sub">Aqui não se fala de números, só de quadrantes. São 20 quadrantes, um por meia linha (1 = 01 a 05, 2 = 06 a 10, ... 20 = 96 a 00). Em cada sorteio "saem" os quadrantes que receberam algum número: no concurso 2976 saíram 12. Um jogo é um volante, e um volante são sempre 10 quadrantes inteiros.</p>
+  <p class="sub"><a href="../">Gerador de 12 em 20 (com os números e o teste no passado)</a> · <a href="../../">Fechamentos com 25 quadrantes de 4 números</a></p>
+
+  <h2>A tabela</h2>
+  <p class="sub">"Faltou 1" quer dizer: dos quadrantes que você jogou, um não saiu. O número de jogos é o mínimo para garantir que algum jogo tenha os 10 quadrantes certos, isto é, que os quadrantes que não saíram fiquem todos de fora daquele jogo. Cada jogo custa R$ 3,00.</p>
+  <div class="rolar"><table id="tabela"></table></div>
+
+  <section class="bloco">
+    <p class="passo"><i>1</i> Marque de 10 a 14 quadrantes</p>
+    <div class="quads" id="quads"></div>
+    <div class="conta"><b id="conta">0 marcados</b>
+      <span><button type="button" class="btn" id="exemplo">Exemplo: os 12 do concurso 2976</button> <button type="button" class="btn" id="limpar">Limpar</button></span></div>
+  </section>
+
+  <section id="resultado" hidden>
+    <h2 id="titulo"></h2>
+    <p class="sub" id="explica"></p>
+    <div class="acoes"><button type="button" class="btn pri" id="baixar">Baixar todos os jogos (com os números)</button><button type="button" class="btn" id="copiar">Copiar</button></div>
+    <div class="niveis" id="niveis" style="margin-top:12px"></div>
+  </section>
+
+  <div class="honesto"><b>Só quadrantes, então só quadrantes.</b> Esta tabela garante quadrantes certos, não pontos. Quantos pontos um jogo faz depende de quantos números caíram nos quadrantes que ficaram de fora dele. No 2976, um jogo que deixasse de fora os quadrantes 1 e 2 faria 18 pontos; um que deixasse de fora o 5 e o 19 faria 14. Os dois teriam "10 quadrantes certos".</div>
+</main>
+
+<script src="coberturas.js"></script>
+<script src="../gerador.js"></script>
+<script>
+(() => {
+  const CB = window.COBERTURAS;
+  const G = window.Gerador20;
+  const $ = (id) => document.getElementById(id);
+  const dois = G.dois;
+  const milhar = (n) => n.toLocaleString('pt-BR');
+  const reais = (v) => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+  const CHAVE = 'tabela-quadrantes-v1';
+  const EXEMPLO = [0, 1, 3, 4, 5, 6, 8, 9, 10, 12, 15, 18]; // quadrantes 1,2,4,5,6,7,9,10,11,13,16,19 (concurso 2976)
+  const TAMANHOS = [10, 12, 13, 14];
+
+  // ---- a tabela geral
+  const maxFalta = 4;
+  let th = '<thead><tr><th>Jogar</th><th>Saíram todos</th>' + [1, 2, 3, 4].map((d) => `<th>${d === 1 ? 'Faltou 1' : 'Faltaram ' + d}</th>`).join('') + '<th>Fechamento completo</th></tr></thead><tbody>';
+  for (const K of TAMANHOS) {
+    th += `<tr><td><b>${K}</b> em 20<br><small class="sub">${K * 5} números</small></td>`;
+    for (let d = 0; d <= maxFalta; d++) {
+      const c = CB.tabela[K].porFalta[d];
+      th += c ? `<td><b>${milhar(c.jogos)}</b> jogo${c.jogos > 1 ? 's' : ''}<br><small class="sub">${reais(c.jogos * 3)}</small></td>` : '<td class="sub">—</td>';
+    }
+    th += `<td><b>${milhar(CB.tabela[K].completo)}</b><br><small class="sub">${reais(CB.tabela[K].completo * 3)}</small></td></tr>`;
+  }
+  $('tabela').innerHTML = th + '</tbody>';
+
+  // ---- escolha dos quadrantes
+  let salvo = {};
+  try { salvo = JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { salvo = {}; }
+  const escolhidos = new Set(Array.isArray(salvo.escolhidos) ? salvo.escolhidos.filter((q) => Number.isInteger(q) && q >= 0 && q <= 19) : EXEMPLO);
+  const guardar = () => { try { localStorage.setItem(CHAVE, JSON.stringify({ escolhidos: [...escolhidos] })); } catch (e) { /* segue */ } };
+  const quads = $('quads');
+  for (let q = 0; q < 20; q += 1) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'quad'; b.dataset.q = q;
+    b.innerHTML = `<b>${q + 1}</b><span>${G.NUMEROS[q].map(dois).join(' ')}</span>`;
+    b.addEventListener('click', () => { if (escolhidos.has(q)) escolhidos.delete(q); else if (escolhidos.size < 14) escolhidos.add(q); mudou(); });
+    quads.appendChild(b);
+  }
+  $('exemplo').addEventListener('click', () => { escolhidos.clear(); EXEMPLO.forEach((q) => escolhidos.add(q)); mudou(); });
+  $('limpar').addEventListener('click', () => { escolhidos.clear(); mudou(); });
+
+  let ultimoTexto = '';
+  function mudou() { guardar(); desenhar(); }
+  function desenhar() {
+    const n = escolhidos.size; const cheio = n >= 14;
+    quads.querySelectorAll('.quad').forEach((b) => { const q = Number(b.dataset.q); b.classList.toggle('on', escolhidos.has(q)); b.disabled = !escolhidos.has(q) && cheio; b.setAttribute('aria-pressed', escolhidos.has(q) ? 'true' : 'false'); });
+    const ok = TAMANHOS.includes(n);
+    $('conta').textContent = n === 0 ? '0 marcados' : `${n} marcado${n > 1 ? 's' : ''}` + (ok ? ' ✓' : n === 11 ? ' — a tabela tem 10, 12, 13 e 14' : '');
+    $('conta').classList.toggle('ok', ok);
+    if (ok) mostrar(); else $('resultado').hidden = true;
+  }
+
+  function jogosDe(grupo, d) {
+    const K = grupo.length; const blocos = CB.blocos[`${K}-${d}`];
+    return blocos.map((fora) => {
+      const foraQ = fora.map((i) => grupo[i]).sort((a, b) => a - b);
+      const dentro = grupo.filter((q) => !foraQ.includes(q));
+      return { dentro, fora: foraQ };
+    });
+  }
+  const linhaJogo = (j, i) => `<div class="jogo"><small>Jogo ${i + 1}</small><span class="q">${j.dentro.map((q) => `<i>${q + 1}</i>`).join('')}</span>${j.fora.length ? `<span class="fora">fora: ${j.fora.map((q) => `<i>${q + 1}</i>`).join(' ')}</span>` : ''}</div>`;
+
+  function mostrar() {
+    const grupo = [...escolhidos].sort((a, b) => a - b); const K = grupo.length;
+    $('titulo').textContent = `${K} quadrantes jogados: ${grupo.map((q) => q + 1).join(', ')}`;
+    $('explica').innerHTML = K === 10
+      ? 'Com 10 quadrantes o jogo é um só: o próprio volante. Ele tem os 10 quadrantes certos quando os 10 saem.'
+      : `Cada jogo leva 10 dos seus ${K} quadrantes e deixa ${K - 10} de fora. Abra cada nível para ver os jogos, escritos em quadrantes.`;
+    const niveis = [];
+    const texto = [`# Lotomania - tabela pura de quadrantes. Quadrantes jogados: ${grupo.map((q) => q + 1).join(', ')} (${K} em 20)`, '# Cada jogo = 10 quadrantes inteiros = 50 numeros. Quadrante 1 = 01-05, 2 = 06-10, ..., 20 = 96-00.', ''];
+    for (let d = 0; d <= K - 10; d += 1) {
+      const c = CB.tabela[K].porFalta[d]; const js = jogosDe(grupo, d);
+      const rotulo = d === 0 ? 'Saíram todos os seus quadrantes' : d === 1 ? 'Faltou 1 dos seus quadrantes' : `Faltaram ${d} dos seus quadrantes`;
+      niveis.push(`<details ${d === 1 || K === 10 ? 'open' : ''}><summary><b>${milhar(js.length)} jogo${js.length > 1 ? 's' : ''}</b> · ${reais(js.length * 3)} por concurso <span>${rotulo} — ${c.nome}</span></summary><div class="jogos">${js.map(linhaJogo).join('')}</div></details>`);
+      texto.push(`== ${rotulo}: ${js.length} jogo(s), ${reais(js.length * 3)} por concurso (${c.nome})`);
+      js.forEach((j, i) => {
+        const nums = j.dentro.flatMap((q) => G.NUMEROS[q]).map(dois).join(' ');
+        texto.push(`Jogo ${String(i + 1).padStart(3, '0')}: quadrantes ${j.dentro.map((q) => q + 1).join(' ')}${j.fora.length ? ' (fora: ' + j.fora.map((q) => q + 1).join(' ') + ')' : ''}`);
+        texto.push(`          numeros: ${nums}`);
+      });
+      texto.push('');
+    }
+    $('niveis').innerHTML = niveis.join('');
+    ultimoTexto = texto.join('\n') + '\n';
+    $('resultado').hidden = false;
+  }
+  function aviso(t) { const e = document.createElement('div'); e.className = 'toast'; e.setAttribute('role', 'status'); e.textContent = t; document.body.appendChild(e); setTimeout(() => e.remove(), 2200); }
+  $('baixar').addEventListener('click', () => {
+    const url = URL.createObjectURL(new Blob([ultimoTexto], { type: 'text/plain;charset=utf-8' }));
+    const a = document.createElement('a'); a.href = url; a.download = `lotomania-quadrantes-${escolhidos.size}em20.txt`; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  });
+  $('copiar').addEventListener('click', () => {
+    if (!navigator.clipboard) { aviso('Não consegui copiar. Use "Baixar".'); return; }
+    navigator.clipboard.writeText(ultimoTexto).then(() => aviso('Jogos copiados'), () => aviso('Não consegui copiar. Use "Baixar".'));
+  });
+  desenhar();
+})();
+</script>
+</body>
+</html>
