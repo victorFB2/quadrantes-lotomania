@@ -73,7 +73,7 @@
   .chips span { border: 1px solid var(--linha); background: #fff; border-radius: 999px; padding: 6px 12px; font-size: .85rem; }
   .honesto { background: #fff4e5; border: 1px solid #f5c26b; border-radius: 12px; padding: 10px 12px; margin-top: 18px; }
   .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: #2b2622; color: #fff; padding: 10px 16px; border-radius: 999px; font-weight: 600; z-index: 20; }
-  @media (max-width: 560px) { .placar { grid-template-columns: 1fr; } .quad span { font-size: .8rem; } }
+  @media (max-width: 560px) { .placar { grid-template-columns: 1fr; } .quad { gap: 6px; padding: 6px; } .quad span { font-size: .74rem; letter-spacing: 0; white-space: nowrap; } .quads { gap: 6px 8px; padding: 8px; } }
   @media print { .topo, .bloco, .acoes, .periodo { display: none; } body { background: #fff; } }
 </style>
 </head>
@@ -94,7 +94,8 @@
   <section class="bloco">
     <p class="passo"><i>2</i> Quantos volantes?</p>
     <div class="tamanhos" id="tamanhos"></div>
-    <p class="sub" id="regra" style="margin-top:10px"></p>
+    <p class="sub" style="margin-top:8px"><b>A garantia vale só no dia em que os 20 sorteados caem todos nos seus 12 quadrantes.</b> Nos outros sorteios, não há garantia.</p>
+    <p class="sub" id="regra" style="margin-top:6px"></p>
     <div class="acoes"><button type="button" class="btn pri" id="montar" disabled>Montar os volantes →</button></div>
     <p class="erro" id="erro" hidden></p>
   </section>
@@ -115,9 +116,11 @@
 
   let salvo = {};
   try { salvo = JSON.parse(localStorage.getItem(CHAVE)) || {}; } catch (e) { salvo = {}; }
-  const escolhidos = new Set((salvo.escolhidos || []).filter((q) => Number.isInteger(q) && q >= 0 && q <= 19));
-  let tamanho = G.TAMANHOS[salvo.tamanho] ? Number(salvo.tamanho) : 6;
-  let periodo = String(salvo.periodo || G.PERIODO_PADRAO);
+  const escolhidos = new Set(Array.isArray(salvo.escolhidos) ? salvo.escolhidos.filter((q) => Number.isInteger(q) && q >= 0 && q <= 19) : []);
+  const TAMANHOS_VALIDOS = Object.keys(G.TAMANHOS).map(Number);
+  let tamanho = TAMANHOS_VALIDOS.includes(Number(salvo.tamanho)) ? Number(salvo.tamanho) : 6;
+  const PERIODOS_VALIDOS = ['50', '100', '250', '500', '1000', '2000', 'todos'];
+  let periodo = PERIODOS_VALIDOS.includes(String(salvo.periodo)) ? String(salvo.periodo) : String(G.PERIODO_PADRAO);
   const guardar = () => { try { localStorage.setItem(CHAVE, JSON.stringify({ escolhidos: [...escolhidos], tamanho, periodo })); } catch (e) { /* segue sem guardar */ } };
 
   // ---- os 20 quadrantes
@@ -138,7 +141,7 @@
   for (const t of Object.keys(G.TAMANHOS).map(Number).sort((a, b) => a - b)) {
     const b = document.createElement('button');
     b.type = 'button'; b.dataset.t = t;
-    b.innerHTML = `<b>${t} volantes</b><small>${reais(t * G.PRECO_APOSTA)} por concurso</small><small>garante <b>${G.TAMANHOS[t].garantia} pontos</b></small>`;
+    b.innerHTML = `<b>${t} volantes</b><small>${reais(t * G.PRECO_APOSTA)} por concurso</small><small>se os 12 acertarem: <b>${G.TAMANHOS[t].garantia} pontos</b></small>`;
     b.addEventListener('click', () => { tamanho = t; mudou(); });
     tamanhos.appendChild(b);
   }
@@ -193,13 +196,13 @@
       <div class="placar">
         <div><small>Teria gastado</small><strong>${reais(t.gasto)}</strong><span>${milhar(t.periodo)} concursos × ${r.volantes.length} volantes</span></div>
         <div class="ganho"><small>Teria recebido</small><strong>${reais(t.ganho)}</strong><span>prêmio em ${milhar(t.premiados)} de ${milhar(t.periodo)} concursos</span></div>
-        <div class="${t.saldo >= 0 ? 'positivo' : 'negativo'}"><small>Saldo</small><strong>${t.saldo < 0 ? '−' : ''}${reais(Math.abs(t.saldo))}</strong><span>de cada R$ 100, voltaram R$ ${t.retorno.toFixed(0)} (ao acaso, o esperado é R$ ${t.retornoAcaso.toFixed(0)})</span></div>
+        <div class="${t.saldo >= 0 ? 'positivo' : 'negativo'}"><small>Saldo</small><strong>${t.saldo < 0 ? '−' : ''}${reais(Math.abs(t.saldo))}</strong><span>de cada R$ 100, voltaram R$ ${t.retorno.toFixed(0)}. Uma aposta qualquer de 50 números devolve, em média, R$ ${t.retornoAcaso.toFixed(0)}.</span></div>
       </div>
       <div class="periodo"><label for="per">Testar em</label><select id="per">${opcoes}</select><span class="sub" style="margin:0">do concurso ${t.primeiro} (${t.dataPrimeira}) ao ${t.ultimo} (${t.dataUltima})</span></div>
       <h3>Quanto o melhor volante fez, em cada concurso</h3>
       <div class="chips">${t.melhor.map(([h, q]) => `<span><b>${h} acertos</b> em ${milhar(q)} concurso${q > 1 ? 's' : ''}</span>`).join('')}</div>
       <p class="sub" style="margin-top:10px">Os 20 sorteados caíram todos dentro dos seus 12 quadrantes em <b>${milhar(t.dentroDoGrupo)}</b> desses ${milhar(t.periodo)} concursos.${t.maior ? ` Maior prêmio num único concurso: <b>${reais(t.maior.premio)}</b>, no ${t.maior.concurso} (${t.maior.data}), com ${t.maior.volantesPremiados} volante${t.maior.volantesPremiados > 1 ? 's' : ''} premiado${t.maior.volantesPremiados > 1 ? 's' : ''}.` : ''}${t.semValor ? ` ${milhar(t.semValor)} volante${t.semValor > 1 ? 's' : ''} acertou uma faixa que ninguém ganhou naquele dia; a Caixa não informa o valor, então não foi somado.` : ''}</p>
-      <div class="honesto"><b>O que a garantia é, e o que não é.</b> Ela promete o mínimo de pontos em um volante somente quando os 20 sorteados caem todos nos 12 quadrantes escolhidos. Nos outros sorteios os volantes se comportam como qualquer aposta de 50 números, e o teste acima mostra isso com os prêmios reais. Nenhum fechamento aumenta a chance de ganhar: ele organiza as apostas para que, no dia raro em que os 12 quadrantes acertam, o prêmio venha certo.</div>`;
+      <div class="honesto"><b>O que a garantia é, e o que não é.</b> Ela promete o mínimo de pontos em um volante somente quando os 20 sorteados caem todos nos 12 quadrantes escolhidos. Nos outros sorteios os volantes se comportam como qualquer aposta de 50 números, e o teste acima mostra isso com os prêmios reais. Nenhum fechamento aumenta a chance de ganhar: ele organiza as apostas para que, no dia raro em que os 12 quadrantes acertam, algum prêmio venha certo. Esse prêmio é o de 16, 17 ou 18 pontos, cujo valor varia e costuma ser modesto; o de 20 pontos continua dependendo da sorte.</div>`;
     $('resultado').hidden = false;
     $('per').addEventListener('change', (e) => { periodo = e.target.value; guardar(); mostrar(false); });
     $('baixar').addEventListener('click', baixar);
@@ -211,13 +214,16 @@
     }
     if (rolar) $('resultado').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
-  function aviso(texto) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = texto; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
+  function aviso(texto) { const t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role', 'status'); t.textContent = texto; document.body.appendChild(t); setTimeout(() => t.remove(), 2200); }
   function baixar() {
     const url = URL.createObjectURL(new Blob([ultimoTexto], { type: 'text/plain;charset=utf-8' }));
     const a = document.createElement('a'); a.href = url; a.download = ultimoNome; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 3000);
   }
-  function copiar() { navigator.clipboard.writeText(ultimoTexto).then(() => aviso('Volantes copiados'), () => aviso('Não consegui copiar. Use "Baixar".')); }
+  function copiar() {
+    if (!navigator.clipboard) { aviso('Não consegui copiar. Use "Baixar".'); return; }
+    navigator.clipboard.writeText(ultimoTexto).then(() => aviso('Volantes copiados'), () => aviso('Não consegui copiar. Use "Baixar".'));
+  }
 
   $('exemplo').addEventListener('click', () => { escolhidos.clear(); for (let q = 0; q < 12; q += 1) escolhidos.add(q); mudou(); });
   $('limpar').addEventListener('click', () => { escolhidos.clear(); mudou(); });

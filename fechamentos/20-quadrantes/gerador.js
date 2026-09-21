@@ -13,8 +13,9 @@
     5 volantes  -> pelo menos 16 pontos em algum volante
     6 volantes  -> pelo menos 17 pontos
     18 volantes -> pelo menos 18 pontos (o maximo possivel com quadrantes
-                   inteiros: quando cada quadrante recebe 1 sorteado, todo
-                   volante perde 2)
+                   inteiros: quando todo quadrante recebe pelo menos 1
+                   sorteado - por exemplo 8 com 2 e 4 com 1 - todo volante
+                   perde pelo menos 2, entao nenhum desenho garante 19)
 
   Este arquivo e so a conta. A mesma conta roda na pagina (index.html) e nos
   testes (node teste_gerador20.js).
@@ -43,11 +44,11 @@
   const paresDoGrupo = (g) => { const out = []; for (let i = 0; i < 4; i += 1) for (let j = i + 1; j < 4; j += 1) out.push([g[i], g[j]]); return out; };
   const TAMANHOS = {
     5: { garantia: 16, pares: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9]],
-      regra: 'Os 12 quadrantes formam 6 pares: (1º,2º), (3º,4º), (5º,6º), (7º,8º), (9º,10º), (11º,12º). Cada volante tira um par e marca os outros 10 quadrantes. Os 5 volantes tiram os 5 primeiros pares; o par (11º,12º) fica marcado em todos.' },
+      regra: 'Ponha os seus 12 quadrantes em ordem crescente (o 1º é o menor que você marcou). Eles formam 6 pares: (1º,2º), (3º,4º), (5º,6º), (7º,8º), (9º,10º), (11º,12º). Cada volante tira um par e marca os outros 10 quadrantes. Os 5 volantes tiram os 5 primeiros pares; o par (11º,12º) fica marcado em todos.' },
     6: { garantia: 17, pares: [[0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11]],
-      regra: 'Os mesmos 6 pares. Cada volante tira um par e marca os outros 10 quadrantes: um volante para cada par.' },
+      regra: 'Ponha os seus 12 quadrantes em ordem crescente e forme os 6 pares: (1º,2º), (3º,4º), ..., (11º,12º). Cada volante tira um par e marca os outros 10 quadrantes: um volante para cada par.' },
     18: { garantia: 18, pares: [...paresDoGrupo([0, 1, 2, 3]), ...paresDoGrupo([4, 5, 6, 7]), ...paresDoGrupo([8, 9, 10, 11])],
-      regra: 'Os 12 quadrantes formam 3 grupos de 4: (1º a 4º), (5º a 8º), (9º a 12º). Dentro de cada grupo há 6 duplas; cada volante tira uma dupla do grupo e marca os outros 10 quadrantes. 3 × 6 = 18 volantes. É o máximo que se garante com quadrantes inteiros.' },
+      regra: 'Ponha os seus 12 quadrantes em ordem crescente e forme 3 grupos de 4: (1º a 4º), (5º a 8º), (9º a 12º). Dentro de cada grupo há 6 duplas; cada volante tira uma dupla do grupo e marca os outros 10 quadrantes. 3 × 6 = 18 volantes. É o máximo que se garante com quadrantes inteiros.' },
   };
 
   const dois = (n) => String(n).padStart(2, '0');
@@ -73,7 +74,7 @@
     if (e.size !== escolhidos.length) return 'Tem quadrante repetido.';
     for (const q of e) if (!Number.isInteger(q) || q < 0 || q > 19) return 'Quadrante inválido.';
     if (e.size !== ESCOLHER) return `Escolha exatamente ${ESCOLHER} quadrantes (você marcou ${e.size}).`;
-    if (!TAMANHOS[tamanho]) return 'Tamanho de fechamento inválido.';
+    if (!Object.hasOwn(TAMANHOS, tamanho)) return 'Tamanho de fechamento inválido.';
     return null;
   }
 
